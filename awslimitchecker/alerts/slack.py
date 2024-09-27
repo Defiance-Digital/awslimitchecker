@@ -1,6 +1,5 @@
 import logging
 import requests
-import tabulate  # Ensure this is installed or included
 from awslimitchecker.alerts.base import AlertProvider
 
 logger = logging.getLogger(__name__)
@@ -19,15 +18,13 @@ class Slack(AlertProvider):
             raise ValueError("Slack URL is required but was not provided.")
 
         self.slack_url = slack_url
-        self.warning_threshold = int(kwargs.get("warning_threshold", 80))  # Default to 80 if not provided
-        self.critical_threshold = int(kwargs.get("critical_threshold", 90))  # Default to 90 if not provided
+        self.warning_threshold = int(kwargs.get("warning_threshold", 80))
+        self.critical_threshold = int(kwargs.get("critical_threshold", 90))
 
     def build_block_kit_table(self, headers, rows):
         blocks = []
 
-        # Iterate through each row in the table to build Slack blocks
         for row in rows:
-            # Create a section block for each record with labels in the first column and values in the second column
             row_block = {
                 "type": "section",
                 "fields": [
@@ -44,10 +41,8 @@ class Slack(AlertProvider):
                 ]
             }
 
-            # Add the formatted block to the list
             blocks.append(row_block)
 
-            # Add a divider after each record for clarity
             blocks.append({"type": "divider"})
 
         return blocks
@@ -64,7 +59,7 @@ class Slack(AlertProvider):
                               }
                           },
                           {"type": "divider"}
-                      ] + payload  # Append the payload
+                      ] + payload
         }
 
         headers = {'Content-Type': 'application/json'}
@@ -126,5 +121,5 @@ class Slack(AlertProvider):
     def on_success(self, duration=None):
         message = f"AWS Service Quota Scan completed successfully in {duration:.2f} seconds."
         logger.info(message)
-        # self.send_to_slack([{"type": "section", "text": {"type": "mrkdwn", "text": message}}])
+        self.send_to_slack([{"type": "section", "text": {"type": "mrkdwn", "text": message}}])
 
