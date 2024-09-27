@@ -1,4 +1,4 @@
-awslimitchecker 
+awslimitchecker
 ===============
 
 .. image:: https://img.shields.io/pypi/v/awslimitchecker.svg
