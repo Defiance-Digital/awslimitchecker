@@ -1,0 +1,45 @@
+name: Run AWS Limit Checker Monthly
+
+on:
+  push:
+    branches:
+      - slack
+  pull_request:
+    branches:
+      - slack
+
+  schedule:
+    - cron: "0 0 1 * *" # Runs at midnight on the first day of every month
+  workflow_dispatch: # Allows manual triggering of the workflow
+
+jobs:
+  run-aws-limit-checker:
+    runs-on: ubuntu-latest
+
+    env:
+      SLACK_URL: ${{ secrets.SLACK_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run AWS Limit Checker
+        run: |
+          python3 -m awslimitchecker --alert-provider Slack \
+            --alert-config "warning_threshold=${{ env.WARNING_THRESHOLD }}" \
+            --alert-config "critical_threshold=${{ env.CRITICAL_THRESHOLD }}" \
+            --alert-config "slack_url=${{ env.SLACK_URL }}" \
+            --no-color \
+            --warning-threshold ${{ env.WARNING_THRESHOLD }} \
+            --critical-threshold ${{ env.CRITICAL_THRESHOLD }}
