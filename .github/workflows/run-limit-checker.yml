@@ -20,7 +20,8 @@ jobs:
       SLACK_URL: ${{ secrets.SLACK_URL }}
       WARNING_THRESHOLD: 80
       CRITICAL_THRESHOLD: 90
-      AWS_REGION: 'us-east-1'
+      OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE_ARN }}
+      AWS_REGION: "us-east-1"
 
     steps:
       - name: Checkout repository
@@ -37,6 +38,13 @@ jobs:
           python -m pip install setuptools
           python -m pip install .
 
+      - name: Login to AWS
+        id: login-to-aws
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Run AWS Limit Checker
         run: |
           python3 -m awslimitchecker --alert-provider Slack \
@@ -46,4 +54,3 @@ jobs:
             --no-color \
             --warning-threshold ${{ env.WARNING_THRESHOLD }} \
             --critical-threshold ${{ env.CRITICAL_THRESHOLD }}
-            --region {{ env.AWS_REGION }}
