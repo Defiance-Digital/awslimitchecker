@@ -52,6 +52,7 @@ requires = [
     'pytz',
     'urllib3',
     'tabulate>=0.9.0',
+    'requests',
 ]
 
 classifiers = [
