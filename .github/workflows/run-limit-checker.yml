@@ -23,6 +23,10 @@ jobs:
       OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE_ARN }}
       AWS_REGION: "us-east-1"
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
