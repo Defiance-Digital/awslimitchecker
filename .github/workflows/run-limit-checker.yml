@@ -37,9 +37,9 @@ jobs:
       - name: Run AWS Limit Checker
         run: |
           python3 -m awslimitchecker --alert-provider Slack \
-            --alert-config "warning_threshold=${{ env.WARNING_THRESHOLD }}" \
-            --alert-config "critical_threshold=${{ env.CRITICAL_THRESHOLD }}" \
+            --alert-config "warning_threshold=${{ vars.WARNING_THRESHOLD }}" \
+            --alert-config "critical_threshold=${{ vars.CRITICAL_THRESHOLD }}" \
             --alert-config "slack_url=${{ env.SLACK_URL }}" \
             --no-color \
-            --warning-threshold ${{ env.WARNING_THRESHOLD }} \
-            --critical-threshold ${{ env.CRITICAL_THRESHOLD }}
+            --warning-threshold ${{ vars.WARNING_THRESHOLD }} \
+            --critical-threshold ${{ vars.CRITICAL_THRESHOLD }}
