@@ -18,8 +18,8 @@ jobs:
 
     env:
       SLACK_URL: ${{ secrets.SLACK_URL }}
-      WARNING_THRESHOLD: 5
-      CRITICAL_THRESHOLD: 20
+      WARNING_THRESHOLD: 80
+      CRITICAL_THRESHOLD: 90
       OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE_ARN }}
       EXEC_ROLE_ARN: ${{ secrets.EXEC_ROLE_ARN }}
       AWS_REGION: "us-east-1"
