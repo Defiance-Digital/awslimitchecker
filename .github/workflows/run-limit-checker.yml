@@ -21,6 +21,7 @@ jobs:
       WARNING_THRESHOLD: 80
       CRITICAL_THRESHOLD: 90
       OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE_ARN }}
+      EXEC_ROLE_ARN: ${{ secrets.EXEC_ROLE_ARN }}
       AWS_REGION: "us-east-1"
 
     permissions:
@@ -42,12 +43,18 @@ jobs:
           python -m pip install setuptools
           python -m pip install .
 
-      - name: Login to AWS
-        id: login-to-aws
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ env.OIDC_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.OIDC_ROLE_ARN }}
+
+      - name: Configure other AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.EXEC_ROLE_ARN }}
+          role-chaining: true
 
       - name: Run AWS Limit Checker
         run: |
