@@ -6,11 +6,12 @@ logger = logging.getLogger(__name__)
 
 
 class Slack(AlertProvider):
-    def __init__(self, region_name, slack_url, **kwargs):
+    def __init__(self, region_name, slack_url, account_name, **kwargs):
         """
         Initialize the Slack alert provider.
         :param region_name: AWS region
         :param slack_url: Slack webhook URL
+        :param account_name: AWS account name
         """
         super().__init__(region_name)
 
@@ -18,6 +19,7 @@ class Slack(AlertProvider):
             raise ValueError("Slack URL is required but was not provided.")
 
         self.slack_url = slack_url
+        self.account_name = account_name
         self.warning_threshold = int(kwargs.get("warning_threshold", 80))
         self.critical_threshold = int(kwargs.get("critical_threshold", 90))
 
@@ -55,7 +57,14 @@ class Slack(AlertProvider):
                               "type": "section",
                               "text": {
                                   "type": "mrkdwn",
-                                  "text": "*:exclamation: AWS Limit Check Results :exclamation:*"
+                                  "text": "*AWS Limit Check Results*"
+                              }
+                          },
+                          {
+                              "type": "section",
+                              "text": {
+                                  "type": "mrkdwn",
+                                  "text": "*Account:* " + self.account_name
                               }
                           },
                           {"type": "divider"}
@@ -109,17 +118,17 @@ class Slack(AlertProvider):
         self.send_to_slack(blocks)
 
     def on_critical(self, problems, problem_str, duration=None):
-        message = f"CRITICAL: AWS Service Quota breached. Issues: {problem_str}. Duration: {duration:.2f} seconds."
+        message = f"CRITICAL: AWS Service Quota breached for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.critical(message)
         self.format_and_send(problems, problem_str, duration)
 
     def on_warning(self, problems, problem_str, duration=None):
-        message = f"WARNING: AWS Service Quota threshold crossed. Issues: {problem_str}. Duration: {duration:.2f} seconds."
+        message = f"WARNING: AWS Service Quota threshold crossed for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.warning(message)
         self.format_and_send(problems, problem_str, duration)
 
     def on_success(self, duration=None):
-        message = f"AWS Service Quota Scan completed successfully in {duration:.2f} seconds."
+        message = f"AWS Service Quota Scan for account '{self.account_name}' completed successfully in {duration:.2f} seconds."
         logger.info(message)
         self.send_to_slack([{"type": "section", "text": {"type": "mrkdwn", "text": message}}])
 

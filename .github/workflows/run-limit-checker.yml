@@ -23,6 +23,7 @@ jobs:
       OIDC_ROLE_ARN: ${{ secrets.OIDC_ROLE_ARN }}
       EXEC_ROLE_ARN: ${{ secrets.EXEC_ROLE_ARN }}
       AWS_REGION: "us-east-1"
+      ACCOUNT_NAME: "demo"
 
     permissions:
       contents: read
@@ -64,6 +65,7 @@ jobs:
             --alert-config "warning_threshold=${{ env.WARNING_THRESHOLD }}" \
             --alert-config "critical_threshold=${{ env.CRITICAL_THRESHOLD }}" \
             --alert-config "slack_url=${{ env.SLACK_URL }}" \
+            --alert-config "account_name=${{ env.ACCOUNT_NAME }}" \
             --no-color \
             --warning-threshold ${{ env.WARNING_THRESHOLD }} \
             --critical-threshold ${{ env.CRITICAL_THRESHOLD }}
