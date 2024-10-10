@@ -72,21 +72,20 @@ class Slack(AlertProvider):
         }
 
         headers = {'Content-Type': 'application/json'}
-        response = requests.post(self.slack_url, json=slack_data, headers=headers)
 
-        if response.status_code == 200:
+        try:
+            response = requests.post(self.slack_url, json=slack_data, headers=headers)
+            response.raise_for_status()
             logger.info("Message posted successfully to Slack.")
-        else:
-            logger.error(f"Failed to post message to Slack. Status code: {response.status_code}")
+        except requests.exceptions.HTTPError as err:
+            logger.error(f"Failed to post message to Slack: {err}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"An error occurred while sending the request to Slack: {e}")
 
     # Helper function to build Slack blocks and send the message
     def format_and_send(self, problems, problem_str, duration):
         headers = ['Service Limit', 'Resource', 'Usage #', 'Usage %', 'Limit']
         table = []
-
-        print(problems)
-        print(self.critical_threshold)
-        print(self.warning_threshold)
 
         for svc, limits in problems.items():
             for limit_name, limit in limits.items():
