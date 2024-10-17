@@ -561,14 +561,12 @@ class Runner(object):
                     alerter.on_critical(
                         problems, None, exc=ex, duration=time.time() - start_time
                     )
-                raise
         except Exception as ex:
             logger.exception("An error occurred while checking AWS service limits")
             if alerter:
                 alerter.on_critical(
                     problems, None, exc=ex, duration=time.time() - start_time
                 )
-            raise
         if alerter:
             if res == 2:
                 alerter.on_critical(
