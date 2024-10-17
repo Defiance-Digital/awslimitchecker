@@ -545,6 +545,7 @@ class Runner(object):
                 metrics.set_run_duration(duration)
                 metrics.flush()
         except Exception as ex:
+            logger.exception("An error occurred while checking AWS service limits")
             if alerter:
                 alerter.on_critical(
                     None, None, exc=ex, duration=time.time() - start_time
