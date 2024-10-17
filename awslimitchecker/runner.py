@@ -532,6 +532,7 @@ class Runner(object):
                 args.alert_provider
             )(self.checker.region_name, **args.alert_config)
         start_time = time.time()
+        problems = dict()
         try:
             metrics = None
             if args.metrics_provider:
@@ -548,7 +549,7 @@ class Runner(object):
             logger.exception("An error occurred while checking AWS service limits")
             if alerter:
                 alerter.on_critical(
-                    None, None, exc=ex, duration=time.time() - start_time
+                    problems, None, exc=ex, duration=time.time() - start_time
                 )
             raise
         if alerter:
