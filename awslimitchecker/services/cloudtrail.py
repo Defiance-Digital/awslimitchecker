@@ -89,7 +89,9 @@ class _CloudTrailService(_AwsService):
                         '%s: %s', trail, ex
                     )
                     continue
-                event_selectors = response['EventSelectors']
+
+                event_selectors = response.get('EventSelectors', [])
+
                 for event_selector in event_selectors:
                     data_resource_count += len(
                         event_selector.get('DataResources', [])
