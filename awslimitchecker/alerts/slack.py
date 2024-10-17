@@ -64,10 +64,9 @@ class Slack(AlertProvider):
                               "type": "section",
                               "text": {
                                   "type": "mrkdwn",
-                                  "text": "*Account:* " + self.account_name
+                                  "text": self.account_name
                               }
                           },
-                          {"type": "divider"}
                       ] + payload
         }
 
@@ -120,17 +119,20 @@ class Slack(AlertProvider):
         self.send_to_slack(blocks)
 
     def on_critical(self, problems, problem_str, exc=None, duration=None):
-        message = f"CRITICAL: AWS Service Quota breached for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
+        message = f"CRITICAL: Service quota breached.'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.critical(message)
         self.format_and_send(problems)
 
     def on_warning(self, problems, problem_str, duration=None):
-        message = f"WARNING: AWS Service Quota threshold crossed for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
+        message = f"WARNING: Warning threshold exceeded.'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.warning(message)
         self.format_and_send(problems)
 
     def on_success(self, duration=None):
-        message = f"AWS Service Quota Scan for account '{self.account_name}' completed successfully in {duration:.2f} seconds."
+        message = f"Scan completed successfully in {duration:.2f} seconds."
         logger.info(message)
-        self.send_to_slack([{"type": "section", "text": {"type": "mrkdwn", "text": message}}])
+        self.send_to_slack([
+            {"type": "section", "text": {"type": "mrkdwn", "text": message}},
+            {"type": "divider"}
+        ])
 
