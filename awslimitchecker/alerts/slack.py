@@ -83,7 +83,10 @@ class Slack(AlertProvider):
             logger.error(f"An error occurred while sending the request to Slack: {e}")
 
     # Helper function to build Slack blocks and send the message
-    def format_and_send(self, problems, problem_str, duration):
+    def format_and_send(self, problems):
+        if not isinstance(problems, dict):
+            logger.error(problems)
+
         headers = ['Service Limit', 'Resource', 'Usage #', 'Usage %', 'Limit']
         table = []
 
@@ -119,12 +122,12 @@ class Slack(AlertProvider):
     def on_critical(self, problems, problem_str, exc=None, duration=None):
         message = f"CRITICAL: AWS Service Quota breached for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.critical(message)
-        self.format_and_send(problems, problem_str, duration)
+        self.format_and_send(problems)
 
     def on_warning(self, problems, problem_str, duration=None):
         message = f"WARNING: AWS Service Quota threshold crossed for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.warning(message)
-        self.format_and_send(problems, problem_str, duration)
+        self.format_and_send(problems)
 
     def on_success(self, duration=None):
         message = f"AWS Service Quota Scan for account '{self.account_name}' completed successfully in {duration:.2f} seconds."
