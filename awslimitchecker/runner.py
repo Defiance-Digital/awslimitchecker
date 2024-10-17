@@ -45,6 +45,7 @@ import time
 
 import boto3
 import tabulate
+from botocore.exceptions import ClientError
 
 from .alerts import AlertProvider
 from .checker import AwsLimitChecker
@@ -545,6 +546,22 @@ class Runner(object):
             if metrics:
                 metrics.set_run_duration(duration)
                 metrics.flush()
+        except ClientError as ex:
+            error_code = ex.response['Error']['Code']
+            if error_code == 'NoSuchResourceException':
+                logger.error("The specified resource does not exist.")
+                if alerter:
+                    alerter.on_critical(
+                        problems, None, exc=ex, duration=time.time() - start_time
+                    )
+            else:
+                # Log and raise for other ClientErrors
+                logger.exception("A ClientError occurred while checking AWS service limits.")
+                if alerter:
+                    alerter.on_critical(
+                        problems, None, exc=ex, duration=time.time() - start_time
+                    )
+                raise
         except Exception as ex:
             logger.exception("An error occurred while checking AWS service limits")
             if alerter:
