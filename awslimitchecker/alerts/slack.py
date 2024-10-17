@@ -116,7 +116,7 @@ class Slack(AlertProvider):
         blocks = self.build_block_kit_table(headers, table)
         self.send_to_slack(blocks)
 
-    def on_critical(self, problems, problem_str, duration=None, exc=None):
+    def on_critical(self, problems, problem_str, exc=None, duration=None):
         message = f"CRITICAL: AWS Service Quota breached for account '{self.account_name}'. Issues: {problem_str}. Duration: {duration:.2f} seconds."
         logger.critical(message)
         self.format_and_send(problems, problem_str, duration)
