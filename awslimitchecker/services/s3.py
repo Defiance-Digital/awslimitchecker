@@ -84,7 +84,7 @@ class _S3Service(_AwsService):
         limits['Buckets'] = AwsLimit(
             'Buckets',
             self,
-            100,
+            10000,
             self.warning_threshold,
             self.critical_threshold,
             limit_type='AWS::S3::Bucket',
