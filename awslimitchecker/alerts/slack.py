@@ -7,13 +7,15 @@ logger = logging.getLogger(__name__)
 
 
 class Slack(AlertProvider):
-    def __init__(self, region_name, slack_url, account_name, report_on_success="false", **kwargs):
+    def __init__(
+        self, region_name, slack_url, account_name, report_on_success="false", **kwargs
+    ):
         """
         Initialize the Slack alert provider.
         :param region_name: AWS region
         :param slack_url: Slack webhook URL
         :param account_name: AWS account name
-        :param report_on_success: If true, sends a success notification message to Slack. Otherwise, no message is sent.
+        :param report_on_success: If true, sends a success message to Slack. Otherwise, no message is sent.
         """
         super().__init__(region_name)
 
@@ -42,8 +44,8 @@ class Slack(AlertProvider):
                     {"type": "mrkdwn", "text": f"*{headers[3]}:*"},  # Usage %
                     {"type": "mrkdwn", "text": f"{row[3]}"},
                     {"type": "mrkdwn", "text": f"*{headers[4]}:*"},  # Limit
-                    {"type": "mrkdwn", "text": f"{row[4]}"}
-                ]
+                    {"type": "mrkdwn", "text": f"{row[4]}"},
+                ],
             }
 
             blocks.append(row_block)
@@ -56,24 +58,18 @@ class Slack(AlertProvider):
         slack_data = {
             "text": "AWS Limit Check Results",
             "blocks": [
-                          {
-                              "type": "section",
-                              "text": {
-                                  "type": "mrkdwn",
-                                  "text": "*AWS Limit Check Results*"
-                              }
-                          },
-                          {
-                              "type": "section",
-                              "text": {
-                                  "type": "mrkdwn",
-                                  "text": self.account_name
-                              }
-                          },
-                      ] + payload
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": "*AWS Limit Check Results*"},
+                },
+                {
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": self.account_name},
+                },
+            ] + payload,
         }
 
-        headers = {'Content-Type': 'application/json'}
+        headers = {"Content-Type": "application/json"}
 
         try:
             response = requests.post(self.slack_url, json=slack_data, headers=headers)
@@ -89,16 +85,20 @@ class Slack(AlertProvider):
         if not isinstance(problems, dict):
             logger.error(problems)
 
-        headers = ['Service Limit', 'Resource', 'Usage #', 'Usage %', 'Limit']
+        headers = ["Service Limit", "Resource", "Usage #", "Usage %", "Limit"]
         table = []
 
         for svc, limits in problems.items():
             for limit_name, limit in limits.items():
                 for usage in limit.get_current_usage():
-                    resource = usage.resource_id or '-'
+                    resource = usage.resource_id or "-"
                     limit_value = limit.quotas_limit or "<unknown>"
                     use_value = usage.value
-                    usage_percentage = (use_value / limit_value) * 100 if isinstance(limit_value, (int, float)) else "-"
+                    usage_percentage = (
+                        (use_value / limit_value) * 100
+                        if isinstance(limit_value, (int, float))
+                        else "-"
+                    )
 
                     # Determine the emoji based on usage percentage and thresholds
                     emoji = ""
@@ -109,13 +109,19 @@ class Slack(AlertProvider):
                             emoji = " :warning:"
 
                     # Create a row for the Slack message
-                    table.append([
-                        f"{svc}/{limit_name}",
-                        resource,
-                        str(use_value),
-                        f"{usage_percentage:.0f} % {emoji}" if isinstance(usage_percentage, float) else "-",
-                        str(limit_value)
-                    ])
+                    table.append(
+                        [
+                            f"{svc}/{limit_name}",
+                            resource,
+                            str(use_value),
+                            (
+                                f"{usage_percentage:.0f} % {emoji}"
+                                if isinstance(usage_percentage, float)
+                                else "-"
+                            ),
+                            str(limit_value),
+                        ]
+                    )
 
         # Build Slack blocks and send the message
         blocks = self.build_block_kit_table(headers, table)
@@ -136,8 +142,9 @@ class Slack(AlertProvider):
         logger.info(message)
 
         if self.report_on_success:
-            self.send_to_slack([
-                {"type": "section", "text": {"type": "mrkdwn", "text": message}},
-                {"type": "divider"}
-            ])
-
+            self.send_to_slack(
+                [
+                    {"type": "section", "text": {"type": "mrkdwn", "text": message}},
+                    {"type": "divider"},
+                ]
+            )

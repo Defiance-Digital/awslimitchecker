@@ -5663,3 +5663,36 @@ class CertificateManager(object):
             },
         ]
     }
+
+
+class ECR(object):
+    """
+    Example responses for ECR API calls
+    """
+    test_find_usage_repositories = {
+        'repositories': [
+            {
+                'repositoryName': 'repo1',
+                'repositoryArn': 'arn:aws:ecr:region:account:repository/repo1'
+            },
+            {
+                'repositoryName': 'repo2',
+                'repositoryArn': 'arn:aws:ecr:region:account:repository/repo2'
+            }
+        ]
+    }
+
+    test_find_usage_images_repo1 = {
+        'imageDetails': [
+            {'imageDigest': 'sha256:1234'},
+            {'imageDigest': 'sha256:5678'}
+        ]
+    }
+
+    test_find_usage_images_repo2 = {
+        'imageDetails': [
+            {'imageDigest': 'sha256:abcd'},
+            {'imageDigest': 'sha256:efgh'},
+            {'imageDigest': 'sha256:ijkl'}
+        ]
+    }

@@ -58,24 +58,43 @@ class StoreKeyValuePair(argparse.Action):
     See :py:class:`~argparse.Action`.
     """
 
-    def __init__(self, option_strings, dest, nargs=None, const=None,
-                 default=None, type=None, choices=None, required=False,
-                 help=None, metavar=None):
-        super(StoreKeyValuePair, self).__init__(option_strings, dest, nargs,
-                                                const, default, type, choices,
-                                                required, help, metavar)
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        nargs=None,
+        const=None,
+        default=None,
+        type=None,
+        choices=None,
+        required=False,
+        help=None,
+        metavar=None,
+    ):
+        super(StoreKeyValuePair, self).__init__(
+            option_strings,
+            dest,
+            nargs,
+            const,
+            default,
+            type,
+            choices,
+            required,
+            help,
+            metavar,
+        )
         self.default = {}
 
     def __call__(self, parser, namespace, values, option_string=None):
-        if '=' not in values:
-            raise argparse.ArgumentError(self, 'must be in the form key=value')
-        n, v = values.split('=')
+        if "=" not in values:
+            raise argparse.ArgumentError(self, "must be in the form key=value")
+        n, v = values.split("=")
         # handle quotes for values with spaces
-        n = n.strip('"\'')
+        n = n.strip("\"'")
         getattr(namespace, self.dest)[n] = v
 
 
-def dict2cols(d, spaces=2, separator=' '):
+def dict2cols(d, spaces=2, separator=" "):
     """
     Take a dict of string keys and string values, and return a string with
     them formatted as two columns separated by at least ``spaces`` number of
@@ -89,10 +108,10 @@ def dict2cols(d, spaces=2, separator=' '):
     :type separator: str
     """
     if len(d) == 0:
-        return ''
-    s = ''
+        return ""
+    s = ""
     maxlen = max([len(k) for k in d.keys()])
-    fmt_str = '{k:' + separator + '<' + str(maxlen + spaces) + '}{v}\n'
+    fmt_str = "{k:" + separator + "<" + str(maxlen + spaces) + "}{v}\n"
     for k in sorted(d.keys()):
         s += fmt_str.format(
             k=k,
@@ -125,24 +144,27 @@ def paginate_dict(function_ref, *argv, **kwargs):
     :param kwargs: keyword arguments to pass to the function
     :type kwargs: dict
     """
-    if 'alc_marker_path' not in kwargs:
-        raise Exception("alc_marker_path must be specified for queries "
-                        "that return a dict.")
-    if 'alc_data_path' not in kwargs:
-        raise Exception("alc_data_path must be specified for queries "
-                        "that return a dict.")
-    if 'alc_marker_param' not in kwargs:
-        raise Exception("alc_marker_param must be specified for queries "
-                        "that return a dict.")
+    if "alc_marker_path" not in kwargs:
+        raise Exception(
+            "alc_marker_path must be specified for queries " "that return a dict."
+        )
+    if "alc_data_path" not in kwargs:
+        raise Exception(
+            "alc_data_path must be specified for queries " "that return a dict."
+        )
+    if "alc_marker_param" not in kwargs:
+        raise Exception(
+            "alc_marker_param must be specified for queries " "that return a dict."
+        )
 
-    marker_path = kwargs['alc_marker_path']
-    data_path = kwargs['alc_data_path']
-    marker_param = kwargs['alc_marker_param']
+    marker_path = kwargs["alc_marker_path"]
+    data_path = kwargs["alc_data_path"]
+    marker_param = kwargs["alc_marker_param"]
 
     # strip off "^alc_" args
     pass_kwargs = {}
     for k, v in kwargs.items():
-        if not k.startswith('alc_'):
+        if not k.startswith("alc_"):
             pass_kwargs[k] = v
 
     # first function call
@@ -152,14 +174,12 @@ def paginate_dict(function_ref, *argv, **kwargs):
     marker = _get_dict_value_by_path(result, marker_path)
     if marker is None:
         return result
-    logger.debug("Found marker (%s) in result; iterating for more results",
-                 marker_path)
+    logger.debug("Found marker (%s) in result; iterating for more results", marker_path)
     # iterate results
     results = []
     results.extend(_get_dict_value_by_path(result, data_path))
     while marker is not None:
-        logger.debug("Querying %s with %s=%s", function_ref, marker_param,
-                     marker)
+        logger.debug("Querying %s with %s=%s", function_ref, marker_param, marker)
         pass_kwargs[marker_param] = marker
         result = function_ref(*argv, **pass_kwargs)
         data = _get_dict_value_by_path(result, data_path)
@@ -232,21 +252,20 @@ def _get_latest_version():
     try:
         http = urllib3.PoolManager()
         r = http.request(
-            'GET', 'https://pypi.org/pypi/awslimitchecker/json',
-            timeout=4.0, headers={
-                'User-Agent': 'github.com/jantman/awslimitchecker '
-                              '%s' % _VERSION
-            }
+            "GET",
+            "https://pypi.org/pypi/awslimitchecker/json",
+            timeout=4.0,
+            headers={
+                "User-Agent": "github.com/jantman/awslimitchecker " "%s" % _VERSION
+            },
         )
         assert r.status == 200, "PyPI responded HTTP %s" % r.status
         j = json.loads(r.data)
-        latest = tuple([
-            int(i) for i in j['info']['version'].split('.')[0:3]
-        ])
+        latest = tuple([int(i) for i in j["info"]["version"].split(".")[0:3]])
         if latest > _VERSION_TUP:
-            return j['info']['version']
+            return j["info"]["version"]
     except Exception:
-        logger.debug('Error getting latest version from PyPI', exc_info=True)
+        logger.debug("Error getting latest version from PyPI", exc_info=True)
     return None
 
 
@@ -279,17 +298,17 @@ def issue_string_tuple(service_name, limit, crits, warns, colorize=True):
       limit and usage
     :rtype: tuple
     """
-    usage_str = ''
+    usage_str = ""
     if len(crits) > 0:
-        tmp = 'CRITICAL: '
-        tmp += ', '.join([str(x) for x in sorted(crits)])
-        usage_str += color_output(tmp, 'red', colorize=colorize)
+        tmp = "CRITICAL: "
+        tmp += ", ".join([str(x) for x in sorted(crits)])
+        usage_str += color_output(tmp, "red", colorize=colorize)
     if len(warns) > 0:
         if len(crits) > 0:
-            usage_str += ' '
-        tmp = 'WARNING: '
-        tmp += ', '.join([str(x) for x in sorted(warns)])
-        usage_str += color_output(tmp, 'yellow', colorize=colorize)
+            usage_str += " "
+        tmp = "WARNING: "
+        tmp += ", ".join([str(x) for x in sorted(warns)])
+        usage_str += color_output(tmp, "yellow", colorize=colorize)
     k = "{s}/{l}".format(
         s=service_name,
         l=limit.name,
@@ -301,11 +320,13 @@ def issue_string_tuple(service_name, limit, crits, warns, colorize=True):
     return k, v
 
 
-TRUE_SET = {'yes', 'true', 't', 'y', '1'}
-FALSE_SET = {'no', 'false', 'f', 'n', '0'}
+TRUE_SET = {"yes", "true", "t", "y", "1"}
+FALSE_SET = {"no", "false", "f", "n", "0"}
 
 
-def str2bool(value: Optional[str], raise_exc: bool = False, default: Optional[bool] = None) -> Optional[bool]:
+def str2bool(
+    value: Optional[str], raise_exc: bool = False, default: Optional[bool] = None
+) -> Optional[bool]:
     if value is None:
         return default
 
@@ -316,7 +337,7 @@ def str2bool(value: Optional[str], raise_exc: bool = False, default: Optional[bo
         return False
 
     if raise_exc:
-        valid_values = ', '.join(sorted(TRUE_SET | FALSE_SET))
+        valid_values = ", ".join(sorted(TRUE_SET | FALSE_SET))
         raise ValueError(f"Invalid value '{value}'. Expected one of: {valid_values}.")
 
     return default
