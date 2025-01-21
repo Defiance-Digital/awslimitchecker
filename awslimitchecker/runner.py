@@ -534,6 +534,7 @@ class Runner(object):
             )(self.checker.region_name, **args.alert_config)
         start_time = time.time()
         problems = dict()
+        res = 0
         try:
             metrics = None
             if args.metrics_provider:

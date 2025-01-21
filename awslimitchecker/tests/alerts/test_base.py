@@ -38,7 +38,7 @@ Jason Antman <jason@jasonantman.com> <http://www.jasonantman.com>
 """
 
 from awslimitchecker.alerts.base import AlertProvider
-from awslimitchecker.alerts import Dummy, PagerDutyV1
+from awslimitchecker.alerts import Dummy, PagerDutyV1, Slack
 
 import pytest
 
@@ -58,21 +58,24 @@ class APTester(AlertProvider):
 class TestAlertProvider(object):
 
     def test_init(self):
-        cls = APTester('foo')
-        assert cls._region_name == 'foo'
+        cls = APTester("foo")
+        assert cls._region_name == "foo"
 
     def test_providers_by_name(self):
         assert AlertProvider.providers_by_name() == {
-            'APTester': APTester,
-            'Dummy': Dummy,
-            'PagerDutyV1': PagerDutyV1
+            "APTester": APTester,
+            "Dummy": Dummy,
+            "PagerDutyV1": PagerDutyV1,
+            "Slack": Slack,
         }
 
     def test_get_provider_by_name(self):
-        assert AlertProvider.get_provider_by_name('APTester') == APTester
+        assert AlertProvider.get_provider_by_name("APTester") == APTester
 
     def test_get_provider_by_name_exception(self):
         with pytest.raises(RuntimeError) as exc:
-            AlertProvider.get_provider_by_name('3993fhej')
-        assert str(exc.value) == 'ERROR: "3993fhej" is not a valid ' \
-                                 'AlertProvider class name'
+            AlertProvider.get_provider_by_name("3993fhej")
+        assert (
+            str(exc.value) == 'ERROR: "3993fhej" is not a valid '
+            "AlertProvider class name"
+        )

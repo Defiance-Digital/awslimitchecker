@@ -43,17 +43,14 @@ from awslimitchecker.limit import AwsLimit
 
 # https://code.google.com/p/mock/issues/detail?id=249
 # py>=3.4 should use unittest.mock not the mock package on pypi
-if (
-        sys.version_info[0] < 3 or
-        sys.version_info[0] == 3 and sys.version_info[1] < 4
-):
+if sys.version_info[0] < 3 or sys.version_info[0] == 3 and sys.version_info[1] < 4:
     from mock import patch, call, Mock
 else:
     from unittest.mock import patch, call, Mock
 
 
-pbm = 'awslimitchecker.services.s3'  # module patch base
-pb = '%s._S3Service' % pbm  # class patch pase
+pbm = "awslimitchecker.services.s3"  # module patch base
+pb = "%s._S3Service" % pbm  # class patch pase
 
 
 class Test_S3Service(object):
@@ -61,8 +58,8 @@ class Test_S3Service(object):
     def test_init(self):
         """test __init__()"""
         cls = _S3Service(21, 43, {}, None)
-        assert cls.service_name == 'S3'
-        assert cls.api_name == 's3'
+        assert cls.service_name == "S3"
+        assert cls.api_name == "s3"
         assert cls.conn is None
         assert cls.warning_threshold == 21
         assert cls.critical_threshold == 43
@@ -71,13 +68,15 @@ class Test_S3Service(object):
         cls = _S3Service(21, 43, {}, None)
         cls.limits = {}
         res = cls.get_limits()
-        assert sorted(res.keys()) == sorted([
-            'Buckets',
-        ])
-        assert res['Buckets'].service == cls
-        assert res['Buckets'].def_warning_threshold == 21
-        assert res['Buckets'].def_critical_threshold == 43
-        assert res['Buckets'].default_limit == 100
+        assert sorted(res.keys()) == sorted(
+            [
+                "Buckets",
+            ]
+        )
+        assert res["Buckets"].service == cls
+        assert res["Buckets"].def_warning_threshold == 21
+        assert res["Buckets"].def_critical_threshold == 43
+        assert res["Buckets"].default_limit == 10000
 
     def test_get_limits_again(self):
         """test that existing limits dict is returned on subsequent calls"""
@@ -89,9 +88,9 @@ class Test_S3Service(object):
 
     def test_find_usage(self):
         mock_buckets = Mock()
-        mock_buckets.all.return_value = ['a', 'b', 'c']
+        mock_buckets.all.return_value = ["a", "b", "c"]
         mock_conn = Mock(buckets=mock_buckets)
-        with patch('%s.connect_resource' % pb) as mock_connect:
+        with patch("%s.connect_resource" % pb) as mock_connect:
             cls = _S3Service(21, 43, {}, None)
             cls.resource_conn = mock_conn
             assert cls._have_usage is False
@@ -99,11 +98,9 @@ class Test_S3Service(object):
         assert mock_connect.mock_calls == [call()]
         assert cls._have_usage is True
         assert mock_buckets.mock_calls == [call.all()]
-        assert len(cls.limits['Buckets'].get_current_usage()) == 1
-        assert cls.limits['Buckets'].get_current_usage()[0].get_value() == 3
+        assert len(cls.limits["Buckets"].get_current_usage()) == 1
+        assert cls.limits["Buckets"].get_current_usage()[0].get_value() == 3
 
     def test_required_iam_permissions(self):
         cls = _S3Service(21, 43, {}, None)
-        assert cls.required_iam_permissions() == [
-            's3:ListAllMyBuckets'
-        ]
+        assert cls.required_iam_permissions() == ["s3:ListAllMyBuckets"]

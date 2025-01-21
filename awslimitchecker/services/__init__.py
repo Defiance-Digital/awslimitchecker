@@ -49,6 +49,7 @@ from awslimitchecker.services.directoryservice import _DirectoryserviceService
 from awslimitchecker.services.dynamodb import _DynamodbService
 from awslimitchecker.services.ebs import _EbsService
 from awslimitchecker.services.ec2 import _Ec2Service
+from awslimitchecker.services.ecr import _EcrService
 from awslimitchecker.services.ecs import _EcsService
 from awslimitchecker.services.efs import _EfsService
 from awslimitchecker.services.elasticache import _ElastiCacheService
